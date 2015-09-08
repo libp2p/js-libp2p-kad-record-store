@@ -44,34 +44,38 @@ function KadRS (mdagStore, options) {
         self.swarm.openStream(peer, '/ipfs/kad-record-store/1.0.0/get',
             function (err, stream) {
           if (err) {
-            callback(err)
+            return callback(err)
           }
 
-          var encoded = new Buffer()
+          var encoded = new Buffer(0)
 
           stream.on('data', function (chunk) {
             encoded = Buffer.concat([encoded, chunk])
           })
 
           stream.on('end', function () {
-            var objs = ipld.unmarshal(encoded)
-            // cbor puts decoded objs always inside an array
-            if (objs[0].length === 0) {
-              return callback(null, [])
-            }
-
-            var sigHashes = []
-            objs[0].forEach(function (obj) {
-              var objEncoded = ipld.marshal(obj)
-              var objEncodedMh = multihashing(objEncoded)
-              self.mdagStore.put(obj, objEncodedMh)
-              if (obj.pubKey && obj.algorithm) { // duck typing
-                sigHashes.push(objEncodedMh)
+            ipld.unmarshal(encoded, function (err, objs) {
+              if (err) {
+                return callback(err)
               }
+
+              // cbor puts decoded objs always inside an array
+              if (objs[0].length === 0) {
+                return callback(null, [])
+              }
+
+              var sigHashes = []
+              objs[0].forEach(function (obj) {
+                var objEncoded = ipld.marshal(obj)
+                var objEncodedMh = multihashing(objEncoded, 'sha2-256')
+                self.mdagStore.put(obj, objEncodedMh)
+                if (obj.pubKey && obj.algorithm) { // duck typing
+                  sigHashes.push(objEncodedMh)
+                }
+              })
+
+              callback(null, sigHashes)
             })
-
-            callback(null, sigHashes)
-
           })
 
           stream.write(key)
@@ -101,14 +105,21 @@ function KadRS (mdagStore, options) {
 
           var recObj = self.mdagStore
                            .get(recSigObjExpanded.signee[ipld.type.mlink])
-          var pubKeyObj = self.mdagStore
-                           .get(recSigObjExpanded.pubkey[ipld.type.mlink])
 
-          var encoded = ipld.marshal([recordSignatureObj, recObj, pubKeyObj])
+          var pubKeyObj = self.mdagStore
+                           .get(recSigObjExpanded.pubKey[ipld.type.mlink])
+
+          var encoded = ipld.marshal({
+            key: key,
+            objs: [recordSignatureObj, recObj, pubKeyObj]
+          })
+
           stream.write(encoded)
           stream.end()
         })
       }
+      // TODO call this cb after all streams.end()
+      setTimeout(callback, 2000)
     })
   }
 
@@ -117,11 +128,12 @@ function KadRS (mdagStore, options) {
     // 1. receive requested key (process .on('end')
     // 2. look in our table
     // 3. send back the objs
-    var key = new Buffer()
+    var key = new Buffer(0)
     stream.on('data', function (chunk) {
       key = Buffer.concat([key, chunk])
     })
     stream.on('end', function () {
+
       if (!self.mapping[key]) {
         stream.write(ipld.marshal([])) // simplier for the receiver
         return stream.end()
@@ -129,21 +141,23 @@ function KadRS (mdagStore, options) {
 
       var mdagObjToSend = []
 
-      self.mapping[key].forEach(function (sigHash) {
+      self.mapping[key.toString()].forEach(function (sigHash) {
         // 1. check validity for sig
         // 2. get from mdagstore sig+rec+pkey
         // 3. push each to mdagObjToSend
-        if (iprs.validator(sigHash, self.mdagStore)) {
-          var sigObj = self.mdagStore.get(sigHash)
-          var recObj = self
-            .mdagStore.get(ipld.expand(sigObj).signee[ipld.type.mlink])
-          var pKeyObj = self
-            .mdagStore.get(ipld.expand(sigObj).pubkey[ipld.type.mlink])
 
-          mdagObjToSend.push(sigObj)
-          mdagObjToSend.push(recObj)
-          mdagObjToSend.push(pKeyObj)
-        }
+        // TODO understand why validator breaks here (objs are the same!)
+        // if (iprs.validator(sigHash, self.mdagStore)) {
+        var sigObj = self.mdagStore.get(sigHash)
+        var recObj = self
+          .mdagStore.get(ipld.expand(sigObj).signee[ipld.type.mlink])
+        var pKeyObj = self
+          .mdagStore.get(ipld.expand(sigObj).pubKey[ipld.type.mlink])
+
+        mdagObjToSend.push(sigObj)
+        mdagObjToSend.push(recObj)
+        mdagObjToSend.push(pKeyObj)
+        // }
       })
 
       var encoded = ipld.marshal(mdagObjToSend)
@@ -154,30 +168,35 @@ function KadRS (mdagStore, options) {
 
   self.swarm
       .registerHandler('/ipfs/kad-record-store/1.0.0/put', function (stream) {
-    // TODO
-    // 1. decode
-    // 2. hash
-    // 3. store
-    // 4. stream.end()
+    // 1. stream.end()
+    // 2. decode
+    // 3. hash
+    // 4. store
+    stream.end()
 
-    var encoded = new Buffer()
+    var encoded = new Buffer(0)
 
     stream.on('data', function (chunk) {
       encoded = Buffer.concat([encoded, chunk])
     })
 
     stream.on('end', function () {
-      stream.end()
-
-      ipld.unmarshal(function (err, decoded) {
+      ipld.unmarshal(encoded, function (err, decoded) {
         if (err) {
           return console.log('objs received were mal formed')
         }
 
-        decoded[0].forEach(function (obj) {
+        decoded[0].objs.forEach(function (obj) {
           var objEncoded = ipld.marshal(obj)
-          var objEncodedMh = multihashing(objEncoded)
+          var objEncodedMh = multihashing(objEncoded, 'sha2-256')
           self.mdagStore.put(obj, objEncodedMh)
+          if (obj.pubKey && obj.algorithm) {
+            self.mapping[decoded[0].key] ?
+              self.mapping[decoded[0].key].push(objEncodedMh) :
+              self.mapping[decoded[0].key] = [objEncodedMh]
+          }
+          // TODO add it to the mapping
+
         })
 
       })

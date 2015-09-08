@@ -4,7 +4,7 @@
   "description": "Node.js implementation of IPFS kademlia Peer Routing Record Store",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/test.js"
   },
   "pre-commit": [],
   "repository": {
@@ -21,9 +21,12 @@
   },
   "homepage": "https://github.com/diasdavid/node-ipfs-kad-record-store",
   "devDependencies": {
+    "abstract-record-store": "^0.1.0",
+    "ipfs-kad-router": "^0.1.0",
     "ipfs-peer": "^0.3.0",
     "ipfs-peer-id": "^0.3.1",
     "ipfs-swarm": "^0.4.0",
+    "merkledag-store": "^0.1.0",
     "multiaddr": "^1.0.0",
     "pre-commit": "^1.1.1",
     "standard": "^5.2.1",
