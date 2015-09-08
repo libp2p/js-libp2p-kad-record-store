@@ -195,8 +195,6 @@ function KadRS (mdagStore, options) {
               self.mapping[decoded[0].key].push(objEncodedMh) :
               self.mapping[decoded[0].key] = [objEncodedMh]
           }
-          // TODO add it to the mapping
-
         })
 
       })
