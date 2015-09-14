@@ -19,6 +19,7 @@
   "bugs": {
     "url": "https://github.com/diasdavid/node-ipfs-kad-record-store/issues"
   },
+  "engines" : { "node" : "^4.0.0" },
   "homepage": "https://github.com/diasdavid/node-ipfs-kad-record-store",
   "devDependencies": {
     "abstract-record-store": "^0.1.0",
