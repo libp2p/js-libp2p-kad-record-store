@@ -1,6 +1,6 @@
 {
   "name": "ipfs-kad-record-store",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Node.js implementation of IPFS kademlia Peer Routing Record Store",
   "main": "src/index.js",
   "scripts": {
@@ -11,7 +11,9 @@
     "type": "git",
     "url": "https://github.com/diasdavid/node-ipfs-kad-record-store.git"
   },
-  "engines" : { "node" : "^4.0.0" },
+  "engines": {
+    "node": "^4.0.0"
+  },
   "keywords": [
     "IPFS"
   ],
@@ -20,7 +22,6 @@
   "bugs": {
     "url": "https://github.com/diasdavid/node-ipfs-kad-record-store/issues"
   },
-  "engines" : { "node" : "^4.0.0" },
   "homepage": "https://github.com/diasdavid/node-ipfs-kad-record-store",
   "devDependencies": {
     "abstract-record-store": "^0.1.1",
