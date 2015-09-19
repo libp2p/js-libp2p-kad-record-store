@@ -2,6 +2,10 @@
   "name": "ipfs-kad-record-store",
   "version": "0.0.0",
   "description": "Node.js implementation of IPFS kademlia Peer Routing Record Store",
+
+  "engines" : { 
+    "node" : "^4.0.0" 
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "node tests/test.js"
@@ -21,10 +25,10 @@
   },
   "homepage": "https://github.com/diasdavid/node-ipfs-kad-record-store",
   "devDependencies": {
-    "abstract-record-store": "^0.1.0",
+    "abstract-record-store": "^0.1.2",
     "ipfs-kad-router": "^0.1.0",
-    "ipfs-peer": "^0.3.0",
-    "ipfs-peer-id": "^0.3.1",
+    "peer-info": "^0.3.0",
+    "peer-id": "^0.3.1",
     "ipfs-swarm": "^0.4.0",
     "merkledag-store": "^0.1.0",
     "multiaddr": "^1.0.0",
