@@ -1,4 +1,4 @@
-var iprs = require('ipfs-record')
+// var iprs = require('libp2p-record')
 var ipld = require('ipld')
 var multihashing = require('multihashing')
 
@@ -41,7 +41,7 @@ function KadRS (mdagStore, options) {
       }
       for (var i = 0; i < queue.length; i++) {
         var peer = queue.dequeue() // take the top item
-        self.swarm.openStream(peer, '/ipfs/kad-record-store/1.0.0/get',
+        self.swarm.dial(peer, {}, '/ipfs/kad-record-store/1.0.0/get',
             function (err, stream) {
           if (err) {
             return callback(err)
@@ -83,7 +83,6 @@ function KadRS (mdagStore, options) {
         })
       }
     })
-
   }
 
   self.put = function (key, recordSignatureObj, callback) {
@@ -95,7 +94,7 @@ function KadRS (mdagStore, options) {
       }
       for (var i = 0; i < queue.length; i++) {
         var peer = queue.dequeue() // take the top item
-        self.swarm.openStream(peer, '/ipfs/kad-record-store/1.0.0/put',
+        self.swarm.dial(peer, {}, '/ipfs/kad-record-store/1.0.0/put',
             function (err, stream) {
           if (err) {
             callback(err)
@@ -124,7 +123,7 @@ function KadRS (mdagStore, options) {
   }
 
   self.swarm
-      .registerHandler('/ipfs/kad-record-store/1.0.0/get', function (stream) {
+      .handleProtocol('/ipfs/kad-record-store/1.0.0/get', function (stream) {
     // 1. receive requested key (process .on('end')
     // 2. look in our table
     // 3. send back the objs
@@ -132,8 +131,8 @@ function KadRS (mdagStore, options) {
     stream.on('data', function (chunk) {
       key = Buffer.concat([key, chunk])
     })
-    stream.on('end', function () {
 
+    stream.on('end', function () {
       if (!self.mapping[key]) {
         stream.write(ipld.marshal([])) // simplier for the receiver
         return stream.end()
@@ -167,7 +166,7 @@ function KadRS (mdagStore, options) {
   })
 
   self.swarm
-      .registerHandler('/ipfs/kad-record-store/1.0.0/put', function (stream) {
+      .handleProtocol('/ipfs/kad-record-store/1.0.0/put', function (stream) {
     // 1. stream.end()
     // 2. decode
     // 3. hash
@@ -191,14 +190,12 @@ function KadRS (mdagStore, options) {
           var objEncodedMh = multihashing(objEncoded, 'sha2-256')
           self.mdagStore.put(obj, objEncodedMh)
           if (obj.pubKey && obj.algorithm) {
-            self.mapping[decoded[0].key] ?
-              self.mapping[decoded[0].key].push(objEncodedMh) :
-              self.mapping[decoded[0].key] = [objEncodedMh]
+            self.mapping[decoded[0].key]
+              ? self.mapping[decoded[0].key].push(objEncodedMh)
+              : self.mapping[decoded[0].key] = [objEncodedMh]
           }
         })
-
       })
     })
-
   })
 }

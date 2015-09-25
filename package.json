@@ -1,10 +1,9 @@
 {
-  "name": "ipfs-kad-record-store",
+  "name": "libp2p-kad-record-store",
   "version": "0.1.0",
   "description": "Node.js implementation of IPFS kademlia Peer Routing Record Store",
-
-  "engines" : { 
-    "node" : "^4.0.0" 
+  "engines": {
+    "node": "^4.0.0"
   },
   "main": "src/index.js",
   "scripts": {
@@ -14,9 +13,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/diasdavid/node-ipfs-kad-record-store.git"
-  },
-  "engines": {
-    "node": "^4.0.0"
   },
   "keywords": [
     "IPFS"
@@ -29,19 +25,21 @@
   "homepage": "https://github.com/diasdavid/node-ipfs-kad-record-store",
   "devDependencies": {
     "abstract-record-store": "^0.1.1",
-    "ipfs-kad-router": "^0.1.0",
-    "peer-info": "^0.3.0",
-    "peer-id": "^0.3.1",
-    "ipfs-swarm": "^0.4.0",
+    "libp2p-kad-routing": "^0.1.6",
+    "libp2p-spdy": "^0.1.0",
+    "libp2p-swarm": "^0.5.0",
+    "libp2p-tcp": "^0.1.1",
     "merkledag-store": "^0.1.0",
     "multiaddr": "^1.0.0",
+    "peer-id": "^0.3.1",
+    "peer-info": "^0.3.0",
     "pre-commit": "^1.1.1",
     "standard": "^5.2.1",
     "tape": "^4.2.0"
   },
   "dependencies": {
-    "ipfs-record": "0.0.2",
     "ipld": "^0.2.0",
+    "libp2p-record": "^0.1.0",
     "multihashing": "^0.1.3"
   }
 }
