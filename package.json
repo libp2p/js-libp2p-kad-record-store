@@ -1,6 +1,6 @@
 {
   "name": "libp2p-kad-record-store",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Node.js implementation of IPFS kademlia Peer Routing Record Store",
   "engines": {
     "node": "^4.0.0"
