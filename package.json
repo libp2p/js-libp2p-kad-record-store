@@ -32,7 +32,7 @@
   "homepage": "https://github.com/diasdavid/js-ipfs-kad-record-store",
   "devDependencies": {
     "abstract-record-store": "^0.1.1",
-    "dignified.js": "github:dignifiedquire/dignified.js",
+    "dignified.js": "^1.0.0",
     "libp2p-kad-routing": "^0.1.6",
     "libp2p-spdy": "^0.1.0",
     "libp2p-swarm": "^0.5.0",
