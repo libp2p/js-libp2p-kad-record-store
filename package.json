@@ -27,7 +27,7 @@
     "abstract-record-store": "^0.1.1",
     "libp2p-kad-routing": "^0.1.6",
     "libp2p-spdy": "^0.8.1",
-    "libp2p-swarm": "^0.26.0",
+    "libp2p-swarm": "^0.26.4",
     "libp2p-tcp": "^0.7.4",
     "merkledag-store": "^0.1.0",
     "multiaddr": "^2.0.3",
